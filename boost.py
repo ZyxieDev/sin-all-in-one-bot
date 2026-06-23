@@ -37,7 +37,7 @@ def get_boost_counts():
 def save_boost_counts(data):
     try:
         with open(BOOST_COUNTS_FILE, "w") as f:
-            json.dump(data, f, indent=4)
+            return json.dump(data, f, indent=4)
     except Exception:
         pass
 
@@ -53,7 +53,7 @@ def get_keys():
 def save_keys(data):
     try:
         with open(BOOST_KEYS_FILE, "w") as f:
-            json.dump(data, f, indent=4)
+            return json.dump(data, f, indent=4)
     except Exception:
         pass
 
@@ -138,6 +138,39 @@ class Boost(commands.Cog):
             return
             
         await ctx.send("✅ Key successfully verified!")
+
+    @commands.command(name="serverboost")
+    async def serverboost(self, ctx, sub: str = None):
+        if sub and sub.lower() == "test":
+            boost_channel = await self.get_channel(ctx.guild, "boost_channel")
+            
+            # 1. Try sending the embed notification to your designated channel
+            if boost_channel:
+                embed = discord.Embed(
+                    title="🎉 Test Boost Received!",
+                    description=f"Hey {ctx.author.mention} we left you a little surprise! check your DMs!!",
+                    color=discord.Color.fuchsia(),
+                )
+                try:
+                    await boost_channel.send(embed=embed)
+                except discord.Forbidden:
+                    await ctx.send("⚠️ I don't have permission to write in your boost channel.")
+            else:
+                await ctx.send("⚠️ Boost channel hasn't been configured yet. Set it using your configuration command first.")
+
+            # 2. Try sending a mock DM with a usable key to the user testing the setup
+            test_key = generate_key()
+            try:
+                await ctx.author.send(
+                    f"🎁 **Thank you for boosting {ctx.guild.name}!** (Test Flow)\n\n"
+                    f"Here is your test reward key: `{test_key}`\n"
+                    f"Use `!redeem {test_key}` in the server to claim it!"
+                )
+                await ctx.send("📬 Sent a test embed to your channels and a mock key to your DMs!")
+            except discord.Forbidden:
+                await ctx.send("❌ I couldn't DM you! Please make sure your DMs are open for this server.")
+        else:
+            await ctx.send("❓ Use `!serverboost test` to simulate a server boost event.")
 
 
 async def setup(bot):
