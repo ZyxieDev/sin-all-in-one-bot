@@ -1,1 +1,1 @@
-worker: python bot.py
+sinism: python bot.py
