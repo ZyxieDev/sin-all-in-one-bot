@@ -51,7 +51,7 @@ def get_settings():
 def save_settings(data):
     try:
         with open(SETTINGS_FILE, "w") as f:
-            json.dump(data, f, indent=4)
+            return json.dump(data, f, indent=4)
     except Exception:
         pass
 
@@ -215,6 +215,45 @@ class Sin(commands.Cog):
         save_settings(data)
         await ctx.send(f"✅ Antinuke log channel has been set to {channel.mention}.")
 
+    # ---------------- welcome & goodbye settings ----------------
+
+    @sin.command(name="welcomechannel")
+    @commands.has_permissions(administrator=True)
+    async def sin_welcome_channel(self, ctx, channel: discord.TextChannel):
+        data = get_settings()
+        g = get_guild(data, ctx.guild.id)
+        g["welcome_channel"] = str(channel.id)
+        save_settings(data)
+        await ctx.send(f"✅ Welcome channel has been set to {channel.mention}.")
+
+    @sin.command(name="byechannel")
+    @commands.has_permissions(administrator=True)
+    async def sin_bye_channel(self, ctx, channel: discord.TextChannel):
+        data = get_settings()
+        g = get_guild(data, ctx.guild.id)
+        g["bye_channel"] = str(channel.id)
+        save_settings(data)
+        await ctx.send(f"✅ Goodbye channel has been set to {channel.mention}.")
+
+    # ---------------- boost settings ----------------
+
+    @sin.command(name="boostchannel")
+    @commands.has_permissions(administrator=True)
+    async def sin_boost_channel(self, ctx, channel: discord.TextChannel):
+        data = get_settings()
+        g = get_guild(data, ctx.guild.id)
+        g["boost_channel"] = str(channel.id)
+        save_settings(data)
+        await ctx.send(f"✅ Boost announcement channel has been set to {channel.mention}.")
+
+    @sin.command(name="boostlogs")
+    @commands.has_permissions(administrator=True)
+    async def sin_boost_logs(self, ctx, channel: discord.TextChannel):
+        data = get_settings()
+        g = get_guild(data, ctx.guild.id)
+        g["boost_logs_channel"] = str(channel.id)
+        save_settings(data)
+        await ctx.send(f"✅ Boost keys logging channel has been set to {channel.mention}.")
 
     # ---------------- check key snippet helper ----------------
 
