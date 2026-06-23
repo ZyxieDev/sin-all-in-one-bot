@@ -34,7 +34,13 @@ INITIAL_EXTENSIONS = [
 
 class SinBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=PREFIX, intents=intents, help_command=None)
+        # Added the proxy configuration to bypass the Cloudflare 429 Railway block
+        super().__init__(
+            command_prefix=PREFIX, 
+            intents=intents, 
+            help_command=None,
+            proxy="http://discord.com.proxy.community"
+        )
         self.config = CONFIG
 
     async def setup_hook(self):
@@ -47,7 +53,7 @@ bot = SinBot()
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
+    print(f"Logged in as {bot.user} (ID: {bot.user.id}) via proxy!")
     print(f"Prefix: {PREFIX}")
     try:
         synced_guilds = len(bot.guilds)
