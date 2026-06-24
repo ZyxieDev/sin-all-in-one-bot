@@ -3,7 +3,6 @@ import json
 import os
 from discord.ext import commands
 
-# Shared local data file configuration paths
 SETTINGS_FILE = "guild_settings.json"
 
 def get_settings():
@@ -26,7 +25,6 @@ class Welcome(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # This runs automatically when a new member joins the server
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         data = get_settings()
@@ -47,7 +45,6 @@ class Welcome(commands.Cog):
                 except discord.Forbidden:
                     pass
 
-    # This runs automatically when a member leaves the server
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
         data = get_settings()
