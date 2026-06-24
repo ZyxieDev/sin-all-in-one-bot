@@ -34,7 +34,6 @@ INITIAL_EXTENSIONS = [
 
 class SinBot(commands.Bot):
     def __init__(self):
-        # Added the proxy configuration to bypass the Cloudflare 429 Railway block
         super().__init__(
             command_prefix=PREFIX, 
             intents=intents, 
@@ -44,8 +43,16 @@ class SinBot(commands.Bot):
         self.config = CONFIG
 
     async def setup_hook(self):
+        print("--- Loading Extensions ---")
         for ext in INITIAL_EXTENSIONS:
-            await self.load_extension(ext)
+            try:
+                await self.load_extension(ext)
+                print(f"✅ Successfully loaded: {ext}")
+            except commands.ExtensionAlreadyLoaded:
+                print(f"ℹ️ Extension '{ext}' was already loaded. Skipping.")
+            except Exception as e:
+                print(f"❌ ERROR loading '{ext}': {e}")
+        print("--------------------------")
 
 
 bot = SinBot()
@@ -61,9 +68,6 @@ async def on_ready():
     except Exception:
         pass
 
-    # Try to keep the bot's actual Discord username in sync with config.json.
-    # Discord rate-limits username changes (roughly 2/hour), so this is wrapped
-    # in a try/except and will simply no-op if it's been changed too recently.
     desired_name = CONFIG.get("bot_name")
     if desired_name and bot.user and bot.user.name != desired_name:
         try:
