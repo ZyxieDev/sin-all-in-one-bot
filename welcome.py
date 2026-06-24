@@ -22,48 +22,65 @@ def get_guild(data, guild_id):
 
 
 class Welcome(commands.Cog):
+    """Manages automated join and leave embed messages."""
+
     def __init__(self, bot):
         self.bot = bot
 
+    async def get_channel(self, guild, key):
+        data = get_settings()
+        g = get_guild(data, guild.id)
+        cid = g.get(key)
+        return guild.get_channel(int(cid)) if cid else None
+
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        data = get_settings()
-        g = get_guild(data, member.guild.id)
-        channel_id = g.get("welcome_channel")
+        channel = await self.get_channel(member.guild, "welcome_channel")
+        if not channel:
+            return
+            
+        embed = discord.Embed(
+            title="👋 Welcome!",
+            description=(
+                f"{member.mention}, welcome to **{member.guild.name}**!\n"
+                f"We're so glad to have you here, **{member.display_name}** — make yourself at home. 🎉"
+            ),
+            color=discord.Color.green(),
+        )
         
-        if channel_id:
-            channel = member.guild.get_channel(int(channel_id))
-            if channel:
-                embed = discord.Embed(
-                    title="👋 Welcome to the Server!",
-                    description=f"Welcome {member.mention}! We are so glad to have you here with us. 🎉",
-                    color=discord.Color.green()
-                )
-                embed.set_thumbnail(url=member.display_avatar.url)
-                try:
-                    await channel.send(embed=embed)
-                except discord.Forbidden:
-                    pass
+        gif = self.bot.config.get("welcome_gif")
+        if gif:
+            embed.set_image(url=gif)
+        embed.set_footer(text=f"Member #{member.guild.member_count}")
+        
+        try:
+            await channel.send(embed=embed)
+        except discord.Forbidden:
+            pass
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        data = get_settings()
-        g = get_guild(data, member.guild.id)
-        channel_id = g.get("bye_channel")
+        channel = await self.get_channel(member.guild, "goodbye_channel")
+        if not channel:
+            return
+            
+        embed = discord.Embed(
+            title="👋 Goodbye",
+            description=(
+                f"**{member}** has left **{member.guild.name}**.\n"
+                f"We're sad to see you go — take care, and the door's always open. 💔"
+            ),
+            color=discord.Color.dark_grey(),
+        )
         
-        if channel_id:
-            channel = member.guild.get_channel(int(channel_id))
-            if channel:
-                embed = discord.Embed(
-                    title="😢 Goodbye!",
-                    description=f"**{member.name}** has left the server. We will miss you! 💔",
-                    color=discord.Color.red()
-                )
-                embed.set_thumbnail(url=member.display_avatar.url)
-                try:
-                    await channel.send(embed=embed)
-                except discord.Forbidden:
-                    pass
+        gif = self.bot.config.get("goodbye_gif")
+        if gif:
+            embed.set_image(url=gif)
+            
+        try:
+            await channel.send(embed=embed)
+        except discord.Forbidden:
+            pass
 
 
 async def setup(bot):
