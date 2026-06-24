@@ -22,8 +22,8 @@ def get_guild(data, guild_id):
 
 
 class Antimod(commands.Cog):
-    """Protects the server against rogue administrators or staff members."""
-    
+    """Protects the server against rogue staff or unauthorized administrative changes."""
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -33,16 +33,16 @@ class Antimod(commands.Cog):
         """Base antimod configuration command group."""
         await ctx.send(
             f"🛡️ **Antimod System Active**\n"
-            f"Use `{ctx.prefix}antimod toggle` to configure status settings."
+            f"Use `{ctx.prefix}antimod toggle` to manage administration rules."
         )
 
     @antimod.command(name="toggle")
     @commands.has_permissions(administrator=True)
     async def antimod_toggle(self, ctx):
-        """Toggle administrative safety rules."""
+        """Toggle administrative safety protocols."""
         await ctx.send("✅ Antimod safety settings updated.")
 
 
 async def setup(bot):
-    # ✅ FIXED: Now registers Antimod class cleanly without touching the Welcome namespace
+    # ✅ Distinct Class Name prevents registration collisions
     await bot.add_cog(Antimod(bot))
